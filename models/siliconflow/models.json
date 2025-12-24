@@ -1,0 +1,38 @@
+{
+    "Pro/deepseek-ai/DeepSeek-V3": {
+        "api_keys": [
+            {
+                "api_url": "${SILICONFLOW_API_URL}",
+                "api_key": "${SILICONFLOW_API_KEY}",
+                "headers": {
+                    "Authorization": "Bearer ${SILICONFLOW_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                "weight": 1,
+                "rate_limit": 60,
+                "status": "inactive"
+            }
+        ],
+        "model_name": "Pro/deepseek-ai/DeepSeek-V3",
+        "max_tokens": 4096,
+        "temperature_default": 0.7
+    },
+    "Pro/deepseek-ai/DeepSeek-R1": {
+        "api_keys": [
+            {
+                "api_url": "${SILICONFLOW_API_URL}",
+                "api_key": "${SILICONFLOW_API_KEY}",
+                "headers": {
+                    "Authorization": "Bearer ${SILICONFLOW_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                "weight": 1,
+                "rate_limit": 60,
+                "status": "inactive"
+            }
+        ],
+        "model_name": "Pro/deepseek-ai/DeepSeek-R1",
+        "max_tokens": 4096,
+        "temperature_default": 0.7
+    }
+}

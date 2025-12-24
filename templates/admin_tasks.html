@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理 - 产品用户分析系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .tasks-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .tasks-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .tasks-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .tasks-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .tasks-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table th {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+            border-top: none;
+        }
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .stats-card {
+            margin-bottom: 20px;
+        }
+        .filter-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-4">
+        <h1 class="mb-4">任务管理</h1>
+        
+        <!-- 筛选部分 -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="dateRange" class="form-label">日期范围</label>
+                    <select class="form-select" id="dateRange" onchange="filterTasks()">
+                        <option value="all">全部</option>
+                        <option value="today">今天</option>
+                        <option value="yesterday">昨天</option>
+                        <option value="last7days">最近7天</option>
+                        <option value="last30days">最近30天</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="emailFilter" class="form-label">用户邮箱筛选</label>
+                    <select class="form-select" id="emailFilter" onchange="filterTasks()">
+                        <option value="all">全部用户</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="emailUsage" class="form-label">邮箱使用统计</label>
+                    <div id="emailUsage" class="border p-2 rounded bg-white" style="height: 38px; overflow-y: auto;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计图表 -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card stats-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">累积用户数量趋势</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="userChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card stats-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">每日任务数量</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="taskChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 任务列表 -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">所有分析任务</h5>
+            </div>
+            <div class="tasks-container">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>任务ID</th>
+                            <th>用户邮箱</th>
+                            <th>创建时间 <button class="btn btn-sm btn-outline-secondary" onclick="sortByDate()">排序</button></th>
+                            <th>状态</th>
+                            <th>进度</th>
+                            <th>文件</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasksTableBody">
+                        {% for task_id, task in tasks.items() %}
+                        <tr data-task-date="{{ task.created_at }}" data-task-email="{{ task.email }}">
+                            <td>{{ task_id[:8] }}...</td>
+                            <td>{{ task.email }}</td>
+                            <td>{{ task.created_at }}</td>
+                            <td>
+                                {% if task.status == 'pending' %}
+                                <span class="badge bg-secondary">等待中</span>
+                                {% elif task.status == 'pending_payment' %}
+                                <span class="badge bg-warning">等待付款</span>
+                                {% elif task.status == 'running' or task.status == 'generating_personas' or task.status == 'simulating_reactions' %}
+                                <span class="badge bg-primary">进行中</span>
+                                {% elif task.status == 'completed' %}
+                                <span class="badge bg-success">已完成</span>
+                                {% elif task.status == 'failed' %}
+                                <span class="badge bg-danger">失败</span>
+                                {% elif task.status == 'stopped' %}
+                                <span class="badge bg-warning">已中止</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ task.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if task.progress and task.progress.percentage %}
+                                {{ task.progress.percentage }}%
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if task.status == 'completed' and task.files %}
+                                <a href="{{ url_for('download_task_file', task_id=task_id, file_type='personas', key='admin123') }}" class="btn btn-sm btn-outline-primary">画像</a>
+                                <a href="{{ url_for('download_task_file', task_id=task_id, file_type='simulations', key='admin123') }}" class="btn btn-sm btn-outline-primary">模拟</a>
+                                <a href="{{ url_for('download_task_file', task_id=task_id, file_type='report', key='admin123') }}" class="btn btn-sm btn-outline-success">报告</a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if task.status == 'pending_payment' %}
+                                <button class="btn btn-sm btn-success" onclick="startTask('{{ task_id }}')">开始任务</button>
+                                {% elif task.status in ['pending', 'running', 'generating_personas', 'simulating_reactions'] %}
+                                <button class="btn btn-sm btn-danger" onclick="stopTask('{{ task_id }}')">中止</button>
+                                {% elif task.status in ['failed', 'stopped'] %}
+                                <button class="btn btn-sm btn-primary" onclick="restartTask('{{ task_id }}')">重启</button>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 初始化图表
+        let userChart;
+        let taskChart;
+
+        // 处理任务数据
+        function processTaskData() {
+            const tasks = Array.from(document.querySelectorAll('#tasksTableBody tr'));
+            const emailSet = new Set();
+            const dailyTasks = {};
+            const dailyUsers = {};
+            const emailUsage = {};
+
+            tasks.forEach(task => {
+                const date = task.getAttribute('data-task-date').split(' ')[0];
+                const email = task.getAttribute('data-task-email');
+
+                // 统计每日任务数
+                dailyTasks[date] = (dailyTasks[date] || 0) + 1;
+
+                // 统计邮箱使用次数
+                emailUsage[email] = (emailUsage[email] || 0) + 1;
+
+                // 统计每日唯一用户数
+                if (!dailyUsers[date]) {
+                    dailyUsers[date] = new Set();
+                }
+                dailyUsers[date].add(email);
+                emailSet.add(email);
+            });
+
+            // 更新邮箱筛选下拉框
+            const emailFilter = document.getElementById('emailFilter');
+            emailFilter.innerHTML = '<option value="all">全部用户</option>';
+            Array.from(emailSet).sort().forEach(email => {
+                emailFilter.innerHTML += `<option value="${email}">${email}</option>`;
+            });
+
+            // 更新邮箱使用统计
+            const emailUsageDiv = document.getElementById('emailUsage');
+            emailUsageDiv.innerHTML = Object.entries(emailUsage)
+                .sort((a, b) => b[1] - a[1])
+                .map(([email, count]) => `${email}: ${count}次`)
+                .join('<br>');
+
+            // 准备图表数据
+            const dates = Object.keys(dailyTasks).sort();
+            let accumulatedUsers = 0;
+            const userData = dates.map(date => {
+                accumulatedUsers += dailyUsers[date].size;
+                return accumulatedUsers;
+            });
+
+            // 更新图表
+            updateCharts(dates, userData, Object.values(dailyTasks));
+        }
+
+        // 更新图表
+        function updateCharts(dates, userData, taskData) {
+            // 销毁现有图表
+            if (userChart) userChart.destroy();
+            if (taskChart) taskChart.destroy();
+
+            // 创建累积用户数量图表
+            const userCtx = document.getElementById('userChart').getContext('2d');
+            userChart = new Chart(userCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: '累积用户数量',
+                        data: userData,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 创建每日任务数量图表
+            const taskCtx = document.getElementById('taskChart').getContext('2d');
+            taskChart = new Chart(taskCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: '每日任务数量',
+                        data: taskData,
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 筛选任务
+        function filterTasks() {
+            const dateRange = document.getElementById('dateRange').value;
+            const emailFilter = document.getElementById('emailFilter').value;
+            const rows = document.querySelectorAll('#tasksTableBody tr');
+
+            rows.forEach(row => {
+                const taskDate = new Date(row.getAttribute('data-task-date'));
+                const taskEmail = row.getAttribute('data-task-email');
+                let showByDate = true;
+                let showByEmail = true;
+
+                // 日期筛选
+                if (dateRange !== 'all') {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    switch(dateRange) {
+                        case 'today':
+                            showByDate = taskDate >= today;
+                            break;
+                        case 'yesterday':
+                            const yesterday = new Date(today);
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            showByDate = taskDate >= yesterday && taskDate < today;
+                            break;
+                        case 'last7days':
+                            const last7days = new Date(today);
+                            last7days.setDate(last7days.getDate() - 7);
+                            showByDate = taskDate >= last7days;
+                            break;
+                        case 'last30days':
+                            const last30days = new Date(today);
+                            last30days.setDate(last30days.getDate() - 30);
+                            showByDate = taskDate >= last30days;
+                            break;
+                    }
+                }
+
+                // 邮箱筛选
+                if (emailFilter !== 'all') {
+                    showByEmail = taskEmail === emailFilter;
+                }
+
+                row.style.display = showByDate && showByEmail ? '' : 'none';
+            });
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            processTaskData();
+            filterTasks();
+            // 默认按创建时间降序排序
+            sortByDate();
+        });
+
+        // 按创建时间排序
+        function sortByDate() {
+            const tbody = document.getElementById('tasksTableBody');
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+            
+            // 切换排序方向
+            const isAscending = tbody.getAttribute('data-sort-direction') === 'asc';
+            tbody.setAttribute('data-sort-direction', isAscending ? 'desc' : 'asc');
+            
+            rows.sort((a, b) => {
+                const dateA = new Date(a.getAttribute('data-task-date'));
+                const dateB = new Date(b.getAttribute('data-task-date'));
+                return isAscending ? dateA - dateB : dateB - dateA;
+            });
+            
+            // 重新添加排序后的行
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // 任务操作函数
+        function stopTask(taskId) {
+            if (!confirm('确定要中止这个任务吗？')) {
+                return;
+            }
+            
+            fetch(`/api/task/${taskId}/stop?key=admin123`, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('中止任务失败: ' + data.error);
+                } else {
+                    alert('任务已中止');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                alert('中止任务时出错: ' + error);
+            });
+        }
+
+        function restartTask(taskId) {
+            if (!confirm('确定要重启这个任务吗？')) {
+                return;
+            }
+            
+            fetch(`/api/task/${taskId}/restart?key=admin123`, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('重启任务失败: ' + data.error);
+                } else {
+                    alert('任务已重启');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                alert('重启任务时出错: ' + error);
+            });
+        }
+
+        function startTask(taskId) {
+            if (!confirm('确定要开始这个任务吗？')) {
+                return;
+            }
+            
+            fetch(`/api/task/${taskId}/start?key=admin123`, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('开始任务失败: ' + data.error);
+                } else {
+                    alert('任务已开始');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                alert('开始任务时出错: ' + error);
+            });
+        }
+    </script>
+</body>
+</html> 

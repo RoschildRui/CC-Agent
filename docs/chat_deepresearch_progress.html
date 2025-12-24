@@ -1,0 +1,796 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设计系统助手 - Claude</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        /* 左侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: #f5f5f5;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .logo-area {
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .logo {
+            width: 24px;
+            height: 24px;
+            background: #666;
+            border-radius: 4px;
+        }
+
+        .sidebar-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #333;
+            border-radius: 6px;
+            margin: 2px 8px;
+            transition: background 0.15s;
+        }
+
+        .sidebar-item:hover {
+            background: #e8e8e8;
+        }
+
+        .sidebar-item.active {
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-section {
+            padding: 16px 16px 8px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 0 8px 0;
+        }
+
+        .chat-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #444;
+            transition: background 0.15s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item:hover {
+            background: #e8e8e8;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .main-header {
+            padding: 10px 20px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 52px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .icon-btn:hover {
+            background: #f5f5f5;
+            border-color: #d5d5d5;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message {
+            margin-bottom: 28px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .user-message {
+            background: #f0f0f0;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 75%;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #1a1a1a;
+        }
+
+        .message.assistant {
+            max-width: 100%;
+        }
+
+        .assistant-content {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #2c2c2c;
+        }
+
+        .assistant-content p {
+            margin-bottom: 16px;
+        }
+
+        .research-info {
+            font-size: 12px;
+            color: #999;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reference-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #888;
+            text-decoration: none;
+            font-size: 13px;
+            margin: 16px 0;
+            padding: 8px 0;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .reference-link:hover {
+            color: #555;
+        }
+
+        .response-card {
+            background: #fafafa;
+            border: 1px solid #e8e8e8;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .response-card h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 18px;
+            color: #1a1a1a;
+            line-height: 1.3;
+        }
+
+        .response-card p {
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 14px;
+            font-size: 15px;
+        }
+
+        .response-card strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .source-badges {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        .source-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .source-btn {
+            padding: 6px 12px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .source-btn:hover {
+            background: #f8f8f8;
+        }
+
+        /* 右侧活动面板 */
+        .activity-panel {
+            width: 360px;
+            background: #fafafa;
+            border-left: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .activity-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e5e5;
+            background: #fff;
+        }
+
+        .activity-tabs {
+            display: flex;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .activity-tab {
+            padding: 8px 4px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .activity-tab.active {
+            color: #1a1a1a;
+            border-bottom-color: #1a1a1a;
+        }
+
+        .activity-tab:hover {
+            color: #1a1a1a;
+        }
+
+        .close-btn {
+            padding: 4px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #999;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .activity-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .activity-item {
+            padding: 14px;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            line-height: 1.6;
+            transition: box-shadow 0.15s;
+        }
+
+        .activity-item:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .activity-item .title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            font-size: 14px;
+        }
+
+        .activity-item .description {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .activity-icon {
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .activity-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .activity-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 输入区域 */
+        .input-area {
+            padding: 16px 20px;
+            border-top: 1px solid #e5e5e5;
+            background: #fff;
+        }
+
+        .input-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .tools-btn {
+            padding: 10px 14px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .tools-btn:hover {
+            background: #f8f8f8;
+            border-color: #d0d0d0;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-area input {
+            width: 100%;
+            padding: 12px 50px 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.15s;
+            background: #fafafa;
+        }
+
+        .input-area input:focus {
+            background: #fff;
+            border-color: #999;
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+        }
+
+        .input-icons {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #1a1a1a;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            font-size: 16px;
+        }
+
+        .input-icon-btn:hover {
+            background: #333;
+            transform: scale(1.05);
+        }
+
+        .input-icon-btn.mic {
+            background: transparent;
+            color: #666;
+        }
+
+        .input-icon-btn.mic:hover {
+            background: #f0f0f0;
+            color: #1a1a1a;
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d0d0d0;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b0b0b0;
+        }
+
+        .badge {
+            background: #e8e8e8;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: auto;
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.3f7572448765332f3047.js"></script></head>
+<body>
+    <!-- 左侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-area">
+                <div class="logo"></div>
+                <span style="font-size: 14px; color: #666;">☰</span>
+            </div>
+            
+            <div class="sidebar-item">
+                <span>✏️</span>
+                <span>New chat</span>
+            </div>
+            
+            <div class="sidebar-item">
+                <span>🔍</span>
+                <span>Search chats</span>
+            </div>
+            
+            <div class="sidebar-item">
+                <span>📚</span>
+                <span>Library</span>
+                <span class="badge">11</span>
+            </div>
+            
+            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e5e5;">
+                <div class="sidebar-item">
+                    <span>◐</span>
+                    <span>Sora</span>
+                </div>
+                
+                <div class="sidebar-item">
+                    <span>⚡</span>
+                    <span>GPTs</span>
+                </div>
+                
+                <div class="sidebar-item">
+                    <span>🎨</span>
+                    <span>DALL·E</span>
+                </div>
+                
+                <div class="sidebar-item">
+                    <span>🎨</span>
+                    <span>Canva</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">Chats</div>
+
+        <div class="chat-list">
+            <div class="chat-item">Typo Assistance Request</div>
+            <div class="chat-item">Quadratic Function Plot</div>
+            <div class="chat-item">Toyota Names Poetry</div>
+            <div class="chat-item">Urban Green Spaces</div>
+            <div class="chat-item">Historical Landmarks Guide</div>
+            <div class="chat-item">Gourmet Food Truck Trends</div>
+            <div class="chat-item">Digital Art Techniques</div>
+            <div class="chat-item">Virtual Reality Experiences</div>
+            <div class="chat-item">Local Music Scene Highlights</div>
+            <div class="chat-item">Culinary Heritage Preservation</div>
+            <div class="chat-item">Sustainable Fashion Innovations</div>
+            <div class="chat-item">Community Gardening Initiatives</div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <div class="main-header">
+            <div></div>
+            <div class="header-actions">
+                <button class="icon-btn">📋</button>
+                <button class="icon-btn">🔗 Share</button>
+                <button class="icon-btn">⋮</button>
+                <button class="icon-btn">👤</button>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="message user">
+                <div class="user-message">
+                    Help me make a design system, including websites and mobile terminals.
+                </div>
+            </div>
+
+            <div class="message assistant">
+                <div class="assistant-content">
+                    <p>Great. I'll gather a comprehensive guide to creating a design system that supports both websites and mobile platforms. This will include best practices, UI kits, accessibility considerations, design tokens, responsive behavior, and documentation tools. I'll also explore cross-platform tooling strategies using Figma and relevant frontend frameworks.</p>
+                    
+                    <p>I'll let you know when it's ready for your review.</p>
+                </div>
+                
+                <div class="research-info">
+                    Research completed in 4m · 34 sources · 77 searches
+                </div>
+
+                <a href="#" class="reference-link">
+                    <span>🔗</span>
+                    <span>Identify Minecraft Mods Featuring Dragons</span>
+                    <span style="margin-left: auto;">↗</span>
+                </a>
+
+                <div class="response-card">
+                    <h2>Building a Scalable Cross-Platform Design System</h2>
+                    
+                    <p>A design system is more than a component library – it's a shared language and structured ecosystem for design and development. It ensures consistency, efficiency, and scalability across web and mobile products.</p>
+                    
+                    <p><strong>Foundational principles include modularity and atomic design</strong>, which decompose interfaces into hierarchical parts, and scalability and consistency, which ensure the system can grow with new products and teams. Atomic Design, for example, breaks UIs into atoms, molecules, organisms, templates, and pages – a five-stage methodology for building UI systems from basic elements to full pages.</p>
+                    
+                    <p><strong>atomicdesign.bradfrost.com</strong>. These stages work together hierarchically, making the design system both a cohesive whole and a collection of reusable parts atomicdesign.bradfrost.com. This modular approach (illustrated below) allows teams to build complex UIs by combining simple, tested parts.</p>
+                    
+                    <div class="source-badges">
+                        <div class="source-icon">🌐</div>
+                        <div class="source-icon">🔍</div>
+                        <div class="source-icon">📘</div>
+                        <div class="source-icon">⚡</div>
+                        <button class="source-btn">
+                            <span>Source</span>
+                            <span>↗</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-container">
+                <button class="tools-btn">
+                    <span>⚡</span>
+                    <span>Tools</span>
+                </button>
+                
+                <div class="input-wrapper">
+                    <input type="text" placeholder="Ask anything" id="messageInput">
+                    <div class="input-icons">
+                        <button class="input-icon-btn mic">🎤</button>
+                        <button class="input-icon-btn" onclick="sendMessage()">➤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧活动面板 -->
+    <div class="activity-panel">
+        <div class="activity-header">
+            <div class="activity-tabs">
+                <div class="activity-tab active" onclick="switchTab(0)">Activity</div>
+                <div class="activity-tab" onclick="switchTab(1)">34 Sources</div>
+            </div>
+            <button class="close-btn">✕</button>
+        </div>
+
+        <div class="activity-content" id="activityContent">
+            <div class="activity-item">
+                <div class="title">Creating a Cross-Platform Design System for Web and Mobile</div>
+                <div class="description" style="margin-top: 10px;">
+                    <span class="activity-icon">⚙️</span>
+                    I'm detailing the structure for a comprehensive design system guide, covering foundational principles, core components, design tokens, responsive design, tools, accessibility, documentation, and versioning.
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="description">
+                    <span class="activity-icon">🔍</span>
+                    Searched for foundational principles of design systems
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="description">
+                    <span class="activity-icon">⚙️</span>
+                    I'm thinking about exploring the atomic design concept, likely by Brad Frost, to understand its structure and principles.
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="description">
+                    <span class="activity-icon">📖</span>
+                    Read <a href="#" class="activity-link">atomicdesign.bradfrost.com</a>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="description">
+                    <span class="activity-icon">⚙️</span>
+                    I'm detailing the structure for a comprehensive design system guide, covering foundational principles, core components, design tokens, responsive design, tools, accessibility, documentation, and versioning.
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="description">
+                    <span class="activity-icon">🔍</span>
+                    Searched for foundational principles of design systems
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="description">
+                    <span class="activity-icon">✅</span>
+                    Research completed in 4m • 34 sources
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                const container = document.getElementById('chatContainer');
+                
+                // 用户消息
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'message user';
+                userMessageDiv.innerHTML = `
+                    <div class="user-message">${escapeHtml(message)}</div>
+                `;
+                container.appendChild(userMessageDiv);
+                
+                input.value = '';
+                container.scrollTop = container.scrollHeight;
+                
+                // 模拟 AI 回复
+                setTimeout(() => {
+                    const assistantDiv = document.createElement('div');
+                    assistantDiv.className = 'message assistant';
+                    assistantDiv.innerHTML = `
+                        <div class="assistant-content">
+                            <p>我正在分析您的问题并搜索相关信息...</p>
+                        </div>
+                        <div class="research-info">
+                            正在研究中...
+                        </div>
+                    `;
+                    container.appendChild(assistantDiv);
+                    container.scrollTop = container.scrollHeight;
+                }, 800);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function switchTab(index) {
+            const tabs = document.querySelectorAll('.activity-tab');
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // 这里可以添加切换内容的逻辑
+            if (index === 1) {
+                // 显示来源列表
+                console.log('切换到来源视图');
+            }
+        }
+
+        // 回车发送消息
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 自动调整滚动位置
+        window.addEventListener('load', function() {
+            const container = document.getElementById('chatContainer');
+            container.scrollTop = container.scrollHeight;
+        });
+    </script>
+
+
+</body></html>

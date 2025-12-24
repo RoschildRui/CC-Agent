@@ -1,0 +1,25 @@
+.env
+**/.env
+__pycache__/
+.ipynb_checkpoints
+.vscode/
+.DS_Store
+reports/*
+data/*
+.ftp
+.venv/
+static/payment_codes/*.jpg
+demo/*.html
+demo/*.json
+demo/*.txt
+static/img/*.zip
+CLAUDE.md
+
+# Keep example config files
+!env_example.txt
+
+
+
+
+
+

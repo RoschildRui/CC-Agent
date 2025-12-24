@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品用户分析系统 - 智能市场分析工具</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .value-card {
+            transition: transform 0.3s ease;
+        }
+        .value-card:hover {
+            transform: translateY(-5px);
+        }
+        .highlight-text {
+            background: linear-gradient(120deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0.1) 100%);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        /* 添加示例报告相关的样式 */
+        .demo-report {
+            background: #f8f9fa;
+            padding: 2rem 0;
+            margin-bottom: 3rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .demo-report-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .demo-report-header h2 {
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .demo-report-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        .demo-report-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .original-content {
+            padding-top: 3rem;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+                <i class="bi bi-bar-chart-line me-2"></i>产品用户分析系统
+            </a>
+            <a href="{{ url_for('step1') }}" class="btn btn-light ms-auto">开始分析</a>
+        </div>
+    </nav>
+
+    <!-- 示例报告区域 -->
+    <div class="demo-report">
+        <div class="container">
+            <div class="demo-report-header">
+                <h2>看看我们能为您的产品提供什么分析？</h2>
+                <p>这是一个真实的产品分析报告示例，展示我们如何帮助产品找到目标用户</p>
+            </div>
+            <div class="demo-report-content">
+                {% include 'sample_report.html' %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 原有内容区域，添加original-content类 -->
+    <div class="original-content">
+        <div class="container py-5">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-10">
+                    <h1 class="display-4 fw-bold mb-4">24小时内，找到你产品的买家</h1>
+                    <p class="lead text-secondary mb-5">模拟画像和次数越多，越容易找到付费意愿强的目标用户</p>
+                    <a href="/step1" class="btn btn-primary btn-lg px-5 py-3 fw-bold">开始分析</a>
+                </div>
+            </div>
+
+            <!-- 核心价值展示 -->
+            <div id="core-values" class="row g-4 mb-5">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm value-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-bullseye text-danger fs-3 me-3"></i>
+                                <h5 class="fw-bold mb-0">发现刚需用户</h5>
+                            </div>
+                            <p class="text-secondary mb-0">找到必须解决这个问题且愿意付费的用户群体</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm value-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-heart-fill text-danger fs-3 me-3"></i>
+                                <h5 class="fw-bold mb-0">挖掘高粘性人群</h5>
+                            </div>
+                            <p class="text-secondary mb-0">识别最容易转化为付费会员的用户特征</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm value-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-cash-stack text-success fs-3 me-3"></i>
+                                <h5 class="fw-bold mb-0">剖析购买意愿</h5>
+                            </div>
+                            <p class="text-secondary mb-0">发现哪些小改动就能促使用户立即付费</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm value-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-share-fill text-primary fs-3 me-3"></i>
+                                <h5 class="fw-bold mb-0">发掘自然裂变</h5>
+                            </div>
+                            <p class="text-secondary mb-0">找到会主动推荐并带来新付费用户的人群</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 核心功能展示 -->
+            <div class="row align-items-center g-5 mb-5">
+                <div class="col-lg-6">
+                    <h2 class="fw-bold mb-4">一键获得关键市场洞察</h2>
+                    <div class="d-flex mb-4">
+                        <div class="me-3">
+                            <span class="badge rounded-pill bg-primary fs-6 px-3">1</span>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold">差异化优势分析</h5>
+                            <p class="text-secondary">发现产品相比竞品的独特价值，找准市场定位</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-4">
+                        <div class="me-3">
+                            <span class="badge rounded-pill bg-primary fs-6 px-3">2</span>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold">关键功能识别</h5>
+                            <p class="text-secondary">预测哪些功能最能刺激用户付费，优先级排序</p>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <span class="badge rounded-pill bg-primary fs-6 px-3">3</span>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold">个性化广告文案</h5>
+                            <p class="text-secondary">为每个用户画像生成最有说服力的营销文案</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-body p-4">
+                            <div class="alert alert-primary border-0">
+                                <div class="d-flex">
+                                    <i class="bi bi-lightbulb-fill fs-4 me-3"></i>
+                                    <div>
+                                        <h6 class="fw-bold">为什么选择AI分析？</h6>
+                                        <p class="mb-0">传统调研耗时数月且成本高昂，AI模拟能在24小时内提供更真实的市场反馈，帮您在投入大量资源前做出正确决策。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-4">
+                                <h4 class="fw-bold mb-3">快速体验价格</h4>
+                                <h2 class="display-4 fw-bold text-primary">¥0</h2>
+                                <p class="text-secondary">2个用户画像 × 2次模拟</p>
+                                <a href="{{ url_for('step1') }}" class="btn btn-primary btn-lg w-100">开始免费分析</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 简单的页脚 -->
+            <footer class="text-center mt-5">
+                <p class="text-secondary small mb-0">&copy; 2023 产品用户分析系统</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

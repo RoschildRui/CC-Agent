@@ -1,0 +1,361 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #f8f7fc 0%, #fefefe 50%, #ffffff 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+            margin-top: 12%;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 400;
+            color: #1a1a1a;
+            margin-bottom: 48px;
+            letter-spacing: -0.5px;
+        }
+
+        .input-container {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 
+                        0 4px 16px rgba(0, 0, 0, 0.04);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .input-container:hover {
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 
+                        0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .input-box {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 15px;
+            color: #1a1a1a;
+            margin-bottom: 18px;
+            background: transparent;
+            line-height: 1.5;
+        }
+
+        .input-box::placeholder {
+            color: #a0a0a0;
+            font-weight: 300;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            background: #ffffff;
+            cursor: pointer;
+            font-size: 13px;
+            color: #404040;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-weight: 400;
+        }
+
+        .btn:hover {
+            background: #fafafa;
+            border-color: #d0d0d0;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        .btn-voice {
+            margin-left: auto;
+            background: #1a1a1a;
+            color: #ffffff;
+            border: none;
+        }
+
+        .btn-voice:hover {
+            background: #2d2d2d;
+        }
+
+        .btn-voice svg {
+            opacity: 1;
+        }
+
+        .features {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .feature {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #606060;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .feature:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -2px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 14px;
+            background: #e0e0e0;
+        }
+
+        .feature:hover {
+            color: #1a1a1a;
+            background: #f8f8f8;
+        }
+
+        .feature-icon {
+            width: 18px;
+            height: 18px;
+            opacity: 0.6;
+        }
+
+        .help {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            font-size: 16px;
+            color: #606060;
+            border: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+            font-weight: 400;
+        }
+
+        .help:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin-top: 20%;
+            }
+
+            h1 {
+                font-size: 28px;
+                margin-bottom: 32px;
+            }
+
+            .features {
+                gap: 8px;
+            }
+
+            .feature {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.3f7572448765332f3047.js"></script></head>
+<body>
+    <div class="container">
+        <h1>What can I help with ?</h1>
+        
+        <div class="input-container">
+            <input type="text" class="input-box" placeholder="Ask anything">
+            
+            <div class="buttons">
+                <button class="btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"></path>
+                    </svg>
+                    Attach
+                </button>
+                <button class="btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                    Search
+                </button>
+                <button class="btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                    Reason
+                </button>
+                <button class="btn btn-voice">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"></path>
+                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path>
+                    </svg>
+                    Voice
+                </button>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path>
+                </svg>
+                Brainstorm
+            </div>
+            <div class="feature">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                Code
+            </div>
+            <div class="feature">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Summarize text
+            </div>
+            <div class="feature">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path>
+                    <circle cx="9" cy="10" r="1"></circle>
+                    <circle cx="15" cy="10" r="1"></circle>
+                    <path d="M9 14c.5.5 1.5 1 3 1s2.5-.5 3-1"></path>
+                </svg>
+                Get advice
+            </div>
+            <div class="feature">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="12" r="1"></circle>
+                    <circle cx="19" cy="12" r="1"></circle>
+                    <circle cx="5" cy="12" r="1"></circle>
+                </svg>
+                More
+            </div>
+        </div>
+    </div>
+
+    <div class="help">?</div>
+
+    <script>
+        // 输入框交互
+        const inputBox = document.querySelector('.input-box');
+        const inputContainer = document.querySelector('.input-container');
+
+        inputBox.addEventListener('focus', () => {
+            inputContainer.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(100, 100, 255, 0.12)';
+        });
+
+        inputBox.addEventListener('blur', () => {
+            inputContainer.style.boxShadow = '';
+        });
+
+        inputBox.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && inputBox.value.trim()) {
+                console.log('发送消息:', inputBox.value);
+                // 这里可以添加发送消息的逻辑
+            }
+        });
+
+        // 功能按钮交互
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                console.log('点击按钮:', action);
+                
+                if (action === 'Voice') {
+                    // 语音输入逻辑
+                    this.style.background = '#333';
+                    setTimeout(() => {
+                        this.style.background = '';
+                    }, 200);
+                }
+            });
+        });
+
+        // 功能快捷选项交互
+        document.querySelectorAll('.feature').forEach(feature => {
+            feature.addEventListener('click', function() {
+                const featureName = this.textContent.trim();
+                console.log('选择功能:', featureName);
+                inputBox.focus();
+                
+                // 可以根据不同功能填充不同的提示文本
+                const prompts = {
+                    'Brainstorm': 'Help me brainstorm ideas for ',
+                    'Code': 'Write code to ',
+                    'Summarize text': 'Summarize the following text: ',
+                    'Get advice': 'I need advice about ',
+                };
+                
+                if (prompts[featureName]) {
+                    inputBox.value = prompts[featureName];
+                    inputBox.setSelectionRange(inputBox.value.length, inputBox.value.length);
+                }
+            });
+        });
+
+        // 帮助按钮
+        document.querySelector('.help').addEventListener('click', () => {
+            alert('需要帮助吗？\n\n您可以:\n• 输入任何问题\n• 使用快捷功能\n• 附加文件\n• 使用语音输入');
+        });
+    </script>
+
+
+</body></html>

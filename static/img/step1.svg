@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <style>
+    .st0{fill:#F5F7FB;}
+    .st1{fill:#E6F0FF;}
+    .st2{fill:#4361EE;}
+    .st3{fill:#FFFFFF;}
+    .st4{fill:none;stroke:#4361EE;stroke-width:2;stroke-linecap:round;}
+  </style>
+  
+  <!-- Background -->
+  <circle class="st0" cx="100" cy="100" r="100"/>
+  
+  <!-- Notepad with Pencil -->
+  <rect class="st1" x="40" y="40" width="120" height="140" rx="5" ry="5"/>
+  <rect class="st3" x="50" y="50" width="100" height="120" rx="3" ry="3"/>
+  
+  <!-- Lines on notepad -->
+  <line class="st4" x1="60" y1="70" x2="140" y2="70"/>
+  <line class="st4" x1="60" y1="90" x2="140" y2="90"/>
+  <line class="st4" x1="60" y1="110" x2="140" y2="110"/>
+  <line class="st4" x1="60" y1="130" x2="140" y2="130"/>
+  <line class="st4" x1="60" y1="150" x2="100" y2="150"/>
+  
+  <!-- Pencil -->
+  <polygon class="st2" points="140,40 160,60 150,70 130,50"/>
+  <polygon fill="#FFC107" points="130,50 150,70 140,80 120,60"/>
+  <rect class="st3" x="117" y="57" width="6" height="6" transform="rotate(-45 120 60)"/>
+</svg> 

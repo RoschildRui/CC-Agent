@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <style>
+    .st0{fill:#F5F7FB;}
+    .st1{fill:#E6F0FF;}
+    .st2{fill:#4361EE;}
+    .st3{fill:#4CC9F0;}
+    .st4{fill:#FFFFFF;}
+    .st5{fill:#F72585;}
+  </style>
+  
+  <!-- Background -->
+  <circle class="st0" cx="100" cy="100" r="100"/>
+  
+  <!-- User Card 1 -->
+  <rect class="st4" x="30" y="50" width="80" height="100" rx="5" ry="5" style="filter: drop-shadow(0px 3px 5px rgba(0, 0, 0, 0.1));"/>
+  <circle class="st2" cx="70" cy="80" r="20"/>
+  <circle class="st4" cx="70" cy="80" r="10"/>
+  <rect class="st1" x="40" y="110" width="60" height="5" rx="2" ry="2"/>
+  <rect class="st1" x="40" y="120" width="40" height="5" rx="2" ry="2"/>
+  <rect class="st1" x="40" y="130" width="50" height="5" rx="2" ry="2"/>
+  
+  <!-- User Card 2 (tilted) -->
+  <g transform="translate(100,80) rotate(10) translate(-100,-80)">
+    <rect class="st4" x="90" y="60" width="80" height="100" rx="5" ry="5" style="filter: drop-shadow(0px 3px 5px rgba(0, 0, 0, 0.1));"/>
+    <circle class="st3" cx="130" cy="90" r="20"/>
+    <circle class="st4" cx="130" cy="90" r="10"/>
+    <rect class="st1" x="100" y="120" width="60" height="5" rx="2" ry="2"/>
+    <rect class="st1" x="100" y="130" width="40" height="5" rx="2" ry="2"/>
+    <rect class="st1" x="100" y="140" width="50" height="5" rx="2" ry="2"/>
+  </g>
+  
+  <!-- User Card 3 (even more tilted) -->
+  <g transform="translate(100,80) rotate(20) translate(-100,-80)">
+    <rect class="st4" x="100" y="40" width="80" height="100" rx="5" ry="5" style="filter: drop-shadow(0px 3px 5px rgba(0, 0, 0, 0.1));" opacity="0.8"/>
+    <circle class="st5" cx="140" cy="70" r="20" opacity="0.8"/>
+    <circle class="st4" cx="140" cy="70" r="10" opacity="0.8"/>
+    <rect class="st1" x="110" y="100" width="60" height="5" rx="2" ry="2" opacity="0.8"/>
+    <rect class="st1" x="110" y="110" width="40" height="5" rx="2" ry="2" opacity="0.8"/>
+    <rect class="st1" x="110" y="120" width="50" height="5" rx="2" ry="2" opacity="0.8"/>
+  </g>
+</svg> 

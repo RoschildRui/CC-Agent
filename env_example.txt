@@ -1,0 +1,32 @@
+# ============================================
+# PolyScore 配置文件模板
+# 复制此文件为 .env 并填入实际值
+# ============================================
+
+# ---------- Flask 配置 ----------
+FLASK_SECRET_KEY=your-secret-key-here
+ADMIN_PASSWORD=your-admin-password
+
+# ---------- Bocha 搜索 API ----------
+BOCHA_API_KEY=your-bocha-api-key
+BOCHA_WEB_SEARCH_ENDPOINT=https://api.bocha.cn/v1/web-search
+
+# ---------- 邮件配置 (QQ邮箱) ----------
+SMTP_SERVER=smtp.qq.com
+SMTP_PORT=465
+SENDER_EMAIL=your-email@qq.com
+SENDER_PASSWORD=your-email-auth-code
+
+# ---------- 模型 API 配置 ----------
+# DeepSeek API
+DEEPSEEK_API_KEY=your-deepseek-api-key
+DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions
+
+# SiliconFlow API
+SILICONFLOW_API_KEY=your-siliconflow-api-key
+SILICONFLOW_API_URL=https://api.siliconflow.cn/v1/chat/completions
+
+# New API (自定义API，可选)
+NEW_API_KEY=your-custom-api-key
+NEW_API_URL=http://your-api-server/v1/chat/completions
+

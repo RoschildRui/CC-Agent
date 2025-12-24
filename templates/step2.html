@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户画像分析 - 产品用户分析系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-sm border-0 rounded-3 overflow-hidden animate__animated animate__fadeIn">
+                    <div class="card-header bg-primary text-white p-4">
+                        <h2 class="mb-1">用户画像分析</h2>
+                        <p class="mb-0 text-white-50">智能模拟用户反应，预测产品市场表现</p>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <!-- 功能介绍 -->
+                        {% if not task_id and not error %}
+                        <div class="mb-4 animate__animated animate__fadeIn animate__delay-1s">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="feature-card p-3 h-100 border rounded-3 bg-white shadow-sm">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="feature-icon bg-primary text-white rounded-circle me-2">1</span>
+                                            <h5 class="mb-0">多维用户画像</h5>
+                                        </div>
+                                        <p class="mb-0 text-secondary">AI生成各类用户画像，揭示产品潜在用户群体特征和需求</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="feature-card p-3 h-100 border rounded-3 bg-white shadow-sm">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="feature-icon bg-primary text-white rounded-circle me-2">2</span>
+                                            <h5 class="mb-0">市场反应预测</h5>
+                                        </div>
+                                        <p class="mb-0 text-secondary">模拟真实用户对产品的反应，预测市场接受度和购买意愿</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="feature-card p-3 h-100 border rounded-3 bg-white shadow-sm">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="feature-icon bg-primary text-white rounded-circle me-2">3</span>
+                                            <h5 class="mb-0">数据洞察报告</h5>
+                                        </div>
+                                        <p class="mb-0 text-secondary">生成详细分析报告，提供产品改进建议和市场策略指导</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 新增表单部分，要求10的整数倍用户画像数量 -->
+                        <div class="card border-0 shadow-sm mb-4 animate__animated animate__fadeIn animate__delay-2s">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">设置分析参数</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="{{ url_for('step2') }}" method="post">
+                                    <input type="hidden" name="conversation" value="{{ conversation_json }}">
+                                    
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">电子邮箱</label>
+                                        <input type="email" class="form-control" id="email" name="email" required placeholder="您的邮箱地址">
+                                        <div class="form-text">分析报告将发送到这个邮箱地址</div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="num_personas" class="form-label">用户画像数量</label>
+                                            <select class="form-select" id="num_personas" name="num_personas" required>
+                                                {% for i in range(1, 11) %}
+                                                <option value="{{ i*10 }}" {% if i == 5 %}selected{% endif %}>{{ i*10 }}个</option>
+                                                {% endfor %}
+                                                <option value="200">200个 (深度分析)</option>
+                                                <option value="500">500个 (全面分析)</option>
+                                            </select>
+                                            <div class="form-text">用户画像越多，越容易找到产品的核心付费用户</div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="num_simulations" class="form-label">每用户模拟次数</label>
+                                            <select class="form-select" id="num_simulations" name="num_simulations" required>
+                                                {% for i in range(1, 11) %}
+                                                <option value="{{ i }}" {% if i == 3 %}selected{% endif %}>{{ i }}次</option>
+                                                {% endfor %}
+                                            </select>
+                                            <div class="form-text">模拟次数越多，越有助于发现小改功能就愿意付费的用户</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary px-4">开始分析</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if error %}
+                        <div class="alert alert-danger animate__animated animate__fadeIn" role="alert">
+                            <h5 class="alert-heading">错误</h5>
+                            <p class="mb-0">{{ error }}</p>
+                        </div>
+                        <a href="{{ url_for('step1') }}" class="btn btn-primary">返回上一步</a>
+                        {% elif task_id %}
+                        <div class="card border-0 shadow-sm mb-4 animate__animated animate__fadeIn">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">分析任务信息</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label text-secondary">任务ID</label>
+                                            <p class="fw-bold mb-0">{{ task_id }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-secondary">邮箱地址</label>
+                                            <p class="fw-bold mb-0">{{ email }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label text-secondary">用户画像数量</label>
+                                            <p class="fw-bold mb-0">{{ num_personas }}个</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-secondary">每用户模拟次数</label>
+                                            <p class="fw-bold mb-0">{{ num_simulations }}次</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label text-secondary">产品描述</label>
+                                    <div class="p-3 bg-light rounded-3 border">
+                                        <p class="mb-0">{{ product_description }}</p>
+                                    </div>
+                                </div>
+                                
+                                {% if amount > 0 and task.status == 'pending_payment' and not task.is_vip %}
+                                <div class="card border-0 shadow-sm mb-4">
+                                    <div class="card-header bg-white">
+                                        <h5 class="mb-0">请完成支付</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label text-secondary">支付金额</label>
+                                                    <p class="fw-bold mb-0">{{ amount }}元</p>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label text-secondary">任务ID</label>
+                                                    <p class="fw-bold mb-0">{{ task_id }}</p>
+                                                </div>
+                                                <p class="text-muted">请使用支付宝扫描二维码完成支付</p>
+                                            </div>
+                                            <div class="col-md-6 text-center">
+                                                <img src="{{ qr_code_path }}" alt="支付宝收款码" class="img-fluid" style="max-width: 200px;">
+                                                <p class="mt-2 text-muted">支付完成后，您的任务会自动开始处理</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="alert {% if task.status == 'pending' %}alert-info{% elif task.status == 'running' %}alert-primary{% elif task.status == 'completed' %}alert-success{% else %}alert-warning{% endif %} mb-4">
+                                    <h5 class="alert-heading">
+                                        {% if task.is_vip %}
+                                        <span class="badge bg-warning me-2">VIP用户</span>
+                                        {% endif %}
+                                        {% if task.status == 'pending' %}
+                                        任务准备就绪
+                                        {% elif task.status == 'running' %}
+                                        任务正在处理中
+                                        {% elif task.status == 'completed' %}
+                                        任务已完成
+                                        {% else %}
+                                        任务状态：{{ task.status }}
+                                        {% endif %}
+                                    </h5>
+                                    <p class="mb-0">
+                                        {% if amount == 0 %}
+                                            {% if task.is_vip %}
+                                            尊敬的VIP用户，您的分析任务已优先处理
+                                            {% elif task.status == 'pending' %}
+                                            系统正在准备开始分析，请稍候...
+                                            {% elif task.status == 'running' %}
+                                            您的分析任务正在处理中，请耐心等待...
+                                            {% elif task.status == 'completed' %}
+                                            分析报告已生成，请查看您的邮箱
+                                            {% endif %}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="mt-4">
+                                    <h5>任务进度</h5>
+                                    <div class="progress mb-3 bg-light">
+                                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p id="status-text" class="mb-0 text-primary">初始化分析任务...</p>
+                                        <p id="time-estimate" class="mb-0 text-secondary"></p>
+                                    </div>
+                                </div>
+                                
+                                <div id="results-section" class="mt-4 d-none">
+                                    <h5 class="border-bottom pb-2 mb-3">初步分析结果</h5>
+                                    <div id="results-content">
+                                        <!-- 结果将在这里显示 -->
+                                    </div>
+                                </div>
+                                
+                                <div id="completion-message" class="alert alert-success mt-4 d-none">
+                                    <h5 class="alert-heading">分析完成！</h5>
+                                    <p>详细的分析报告将发送到您提供的邮箱: <strong>{{ email }}</strong></p>
+                                    <p class="mb-0">感谢您使用我们的产品分析系统！</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <a href="{{ url_for('index') }}" class="btn btn-primary px-4">返回首页</a>
+                        {% else %}
+                        <div class="alert alert-warning animate__animated animate__fadeIn" role="alert">
+                            <h5 class="alert-heading">未找到任务</h5>
+                            <p class="mb-0">未找到任务信息，请重新开始分析。</p>
+                        </div>
+                        <a href="{{ url_for('step1') }}" class="btn btn-primary">开始新分析</a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- 底部提示信息 -->
+                <div class="text-center mt-4 text-secondary small animate__animated animate__fadeIn animate__delay-4s">
+                    <p>产品用户分析系统 v2.0 | 市场验证从未如此简单高效</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    {% if task_id %}
+    <script>
+        // 定期检查任务状态
+        const taskId = "{{ task_id }}";
+        let statusCheckInterval;
+        
+        function updateProgress(progress) {
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = progress.percentage + '%';
+            progressBar.setAttribute('aria-valuenow', progress.percentage);
+            progressBar.textContent = progress.percentage + '%';
+            
+            // 根据进度更改颜色
+            if (progress.percentage < 30) {
+                progressBar.classList.remove('bg-success', 'bg-warning');
+                progressBar.classList.add('bg-primary');
+            } else if (progress.percentage < 70) {
+                progressBar.classList.remove('bg-primary', 'bg-success');
+                progressBar.classList.add('bg-warning');
+            } else {
+                progressBar.classList.remove('bg-primary', 'bg-warning');
+                progressBar.classList.add('bg-success');
+            }
+        }
+        
+        function updateStatusText(status, progress, estimatedTime) {
+            const statusText = document.getElementById('status-text');
+            const timeEstimate = document.getElementById('time-estimate');
+            
+            let statusMessage = "正在处理...";
+            
+            if (status === 'pending') {
+                statusMessage = "准备开始分析...";
+            } else if (status === 'generating_personas') {
+                statusMessage = `正在生成第 ${progress.completed + 1} 个用户画像 (共${progress.total}个)`;
+            } else if (status === 'simulating_reactions') {
+                statusMessage = `正在模拟第 ${progress.completed + 1} 位用户的使用反馈 (共${progress.total}位)`;
+            } else if (status === 'completed') {
+                statusMessage = "分析完成！报告已生成";
+                statusText.classList.add('text-success');
+                statusText.classList.remove('text-primary');
+            } else if (status === 'failed') {
+                statusMessage = "分析过程出现错误，请重试";
+                statusText.classList.add('text-danger');
+                statusText.classList.remove('text-primary');
+            }
+            
+            statusText.textContent = statusMessage;
+            
+            if (estimatedTime) {
+                timeEstimate.textContent = `预计剩余时间: ${estimatedTime}`;
+                timeEstimate.classList.remove('d-none');
+            } else {
+                timeEstimate.textContent = '';
+                timeEstimate.classList.add('d-none');
+            }
+        }
+        
+        function displayResults(stats) {
+            const resultsSection = document.getElementById('results-section');
+            const resultsContent = document.getElementById('results-content');
+            
+            if (!stats) return;
+            
+            let html = `
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <span class="badge bg-primary mb-2">分析规模</span>
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>用户画像数量:</span>
+                                        <span class="fw-bold">${stats.total_personas}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>总模拟次数:</span>
+                                        <span class="fw-bold">${stats.total_simulations}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <span class="badge bg-success mb-2">核心指标</span>
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>产品市场契合度:</span>
+                                        <span class="fw-bold text-${stats.would_buy_percentage >= 50 ? 'success' : 'warning'}">${stats.would_buy_percentage}%</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>刚需比例:</span>
+                                        <span class="fw-bold text-${stats.must_have_percentage >= 30 ? 'success' : 'warning'}">${stats.must_have_percentage}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <span class="badge bg-primary mb-2">用户意愿指标</span>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>愿意尝试比例:</span>
+                                    <span class="text-info">${stats.would_try_percentage}%</span>
+                                </div>
+                                <div class="progress mb-1 bg-light">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: ${stats.would_try_percentage}%" 
+                                         aria-valuenow="${stats.would_try_percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>愿意购买比例:</span>
+                                    <span class="text-success">${stats.would_buy_percentage}%</span>
+                                </div>
+                                <div class="progress mb-1 bg-light">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: ${stats.would_buy_percentage}%" 
+                                         aria-valuenow="${stats.would_buy_percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="mb-0">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>刚需比例:</span>
+                                    <span class="text-warning">${stats.must_have_percentage}%</span>
+                                </div>
+                                <div class="progress mb-0 bg-light">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: ${stats.must_have_percentage}%" 
+                                         aria-valuenow="${stats.must_have_percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <span class="badge bg-primary mb-2">用户群体分布</span>
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-3">用户类型</h6>
+                                <ul class="list-group list-group-flush">
+                `;
+                
+                // 用户类型分布
+                if (stats.user_type_percentages) {
+                    for (const [type, percentage] of Object.entries(stats.user_type_percentages)) {
+                        html += `<li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            ${type}
+                            <span class="badge bg-primary rounded-pill">${percentage}%</span>
+                        </li>`;
+                    }
+                }
+                
+                html += `
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <span class="badge bg-primary mb-2">使用频率分布</span>
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-3">使用频率</h6>
+                                <ul class="list-group list-group-flush">
+                `;
+                
+                // 使用频率分布
+                if (stats.usage_frequency_percentages) {
+                    for (const [freq, percentage] of Object.entries(stats.usage_frequency_percentages)) {
+                        html += `<li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            ${freq}
+                            <span class="badge bg-primary rounded-pill">${percentage}%</span>
+                        </li>`;
+                    }
+                }
+                
+                html += `
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-0">
+                    <span class="badge bg-danger mb-2">主要采用障碍</span>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                `;
+                
+                // 主要采用障碍
+                if (stats.top_barriers && Object.keys(stats.top_barriers).length > 0) {
+                    for (const [barrier, count] of Object.entries(stats.top_barriers)) {
+                        html += `<li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            ${barrier}
+                            <span class="badge bg-danger rounded-pill">${count}次提及</span>
+                        </li>`;
+                    }
+                } else {
+                    html += `<li class="list-group-item border-0 px-0">未发现明显采用障碍</li>`;
+                }
+                
+                html += `
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            resultsContent.innerHTML = html;
+            resultsSection.classList.remove('d-none');
+            resultsSection.classList.add('animate__animated', 'animate__fadeIn');
+        }
+        
+        function checkTaskStatus() {
+            fetch(`/api/task/${taskId}/status`)
+                .then(response => response.json())
+                .then(data => {
+                    // 更新进度
+                    updateProgress(data.progress);
+                    updateStatusText(data.status, data.progress, data.estimated_completion_time);
+                    
+                    // 任务完成
+                    if (data.status === 'completed') {
+                        clearInterval(statusCheckInterval);
+                        displayResults(data.stats);
+                        document.getElementById('completion-message').classList.remove('d-none');
+                        document.getElementById('completion-message').classList.add('animate__animated', 'animate__fadeIn');
+                    }
+                    
+                    // 任务失败
+                    else if (data.status === 'failed') {
+                        clearInterval(statusCheckInterval);
+                        document.getElementById('status-text').textContent = `任务失败: ${data.error}`;
+                        document.getElementById('status-text').classList.add('text-danger');
+                    }
+                })
+                .catch(error => console.error('获取任务状态出错:', error));
+        }
+        
+        // 开始定期检查
+        document.addEventListener('DOMContentLoaded', () => {
+            // 立即检查一次
+            checkTaskStatus();
+            
+            // 每3秒检查一次
+            statusCheckInterval = setInterval(checkTaskStatus, 3000);
+        });
+    </script>
+    {% endif %}
+</body>
+</html> 

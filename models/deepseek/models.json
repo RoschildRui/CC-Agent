@@ -1,0 +1,38 @@
+{
+    "deepseek-chat": {
+        "api_keys": [
+            {
+                "api_url": "${DEEPSEEK_API_URL}",
+                "api_key": "${DEEPSEEK_API_KEY}",
+                "headers": {
+                    "Authorization": "Bearer ${DEEPSEEK_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                "weight": 1,
+                "rate_limit": 60,
+                "status": "inactive"
+            }
+        ],
+        "model_name": "deepseek-chat",
+        "max_tokens": 4096,
+        "temperature_default": 0.7
+    },
+    "deepseek-reasoner": {
+        "api_keys": [
+            {
+                "api_url": "${DEEPSEEK_API_URL}",
+                "api_key": "${DEEPSEEK_API_KEY}",
+                "headers": {
+                    "Authorization": "Bearer ${DEEPSEEK_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                "weight": 1,
+                "rate_limit": 60,
+                "status": "inactive"
+            }
+        ],
+        "model_name": "deepseek-reasoner",
+        "max_tokens": 4096,
+        "temperature_default": 0.7
+    }
+}

@@ -1,0 +1,1223 @@
+
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>用户研究报告</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            body {
+                font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f9f9f9;
+            }
+            .header {
+                text-align: center;
+                padding: 20px 0;
+                margin-bottom: 30px;
+                border-bottom: 1px solid #ddd;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .header h1 {
+                margin: 0;
+                color: #2c3e50;
+                font-size: 28px;
+            }
+            .date {
+                color: #7f8c8d;
+                font-style: italic;
+                font-size: 16px;
+            }
+            .section {
+                margin: 30px 0;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .section h2 {
+                color: #2980b9;
+                border-bottom: 2px solid #ecf0f1;
+                padding-bottom: 10px;
+                font-size: 24px;
+            }
+            .section h3 {
+                color: #3498db;
+                font-size: 20px;
+            }
+            .stats-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-around;
+                margin: 20px 0;
+            }
+            .stat-box {
+                background-color: #ecf0f1;
+                border-radius: 8px;
+                padding: 15px;
+                margin: 10px;
+                text-align: center;
+                flex: 1 1 200px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            .stat-box h3 {
+                margin: 0;
+                font-size: 16px;
+                color: #7f8c8d;
+            }
+            .stat-box p {
+                margin: 10px 0 0;
+                font-size: 24px;
+                font-weight: bold;
+                color: #2c3e50;
+            }
+            .chart-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-around;
+                margin: 20px 0;
+            }
+            .chart {
+                flex: 1 1 350px;
+                margin: 15px;
+                text-align: center;
+                background-color: #fff;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                height: 350px;
+            }
+            .chart h3 {
+                margin-top: 0;
+                font-size: 18px;
+                color: #2980b9;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                font-size: 16px;
+            }
+            th, td {
+                padding: 12px 15px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+            th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+            tr:hover {
+                background-color: #f5f5f5;
+            }
+            .persona-card {
+                margin: 30px 0;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .persona-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #ecf0f1;
+            }
+            .persona-title {
+                flex: 1;
+            }
+            .persona-title h3 {
+                margin: 0;
+                color: #2980b9;
+                font-size: 20px;
+            }
+            .persona-meta {
+                display: flex;
+                gap: 15px;
+            }
+            .persona-tag {
+                padding: 5px 10px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+            .tag-core {
+                background-color: #e74c3c;
+                color: white;
+            }
+            .tag-potential {
+                background-color: #f39c12;
+                color: white;
+            }
+            .tag-marginal {
+                background-color: #3498db;
+                color: white;
+            }
+            .tag-non-target {
+                background-color: #95a5a6;
+                color: white;
+            }
+            .tag-frequency {
+                background-color: #1abc9c;
+                color: white;
+            }
+            .persona-description {
+                margin-bottom: 20px;
+                line-height: 1.7;
+                font-size: 16px;
+            }
+            .needs-list, .scenarios-list {
+                padding-left: 20px;
+                font-size: 16px;
+            }
+            .needs-list li, .scenarios-list li {
+                margin-bottom: 8px;
+            }
+            .simulation-card {
+                margin: 15px 0;
+                padding: 15px;
+                background-color: #f8f9fa;
+                border-radius: 8px;
+                border-left: 4px solid #3498db;
+                font-size: 16px;
+            }
+            .simulation-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+            }
+            .simulation-title {
+                font-weight: bold;
+                color: #2c3e50;
+                font-size: 16px;
+            }
+            .simulation-meta {
+                color: #7f8c8d;
+                font-size: 14px;
+            }
+            .simulation-content {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 15px;
+                margin-top: 15px;
+            }
+            .simulation-item {
+                margin-bottom: 10px;
+            }
+            .simulation-item-title {
+                font-weight: bold;
+                margin-bottom: 5px;
+                color: #34495e;
+                font-size: 16px;
+            }
+            .simulation-feedback, .simulation-improvements {
+                grid-column: 1 / -1;
+                padding: 15px;
+                background-color: #ecf0f1;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+            .tag-bool-true {
+                color: #27ae60;
+                font-weight: bold;
+            }
+            .tag-bool-false {
+                color: #e74c3c;
+                font-weight: bold;
+            }
+            .alternatives-list {
+                padding-left: 20px;
+                margin: 5px 0;
+            }
+            .alternatives-list li {
+                margin-bottom: 3px;
+            }
+            .canvas-container {
+                position: relative;
+                height: 300px;
+                width: 100%;
+            }
+            
+            /* 增强图表在移动设备上的显示 */
+            .chart-wrapper {
+                overflow: hidden;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            #userTypeChart, #dependencyChart, #frequencyChart {
+                max-width: 100%;
+            }
+            
+            @media (max-width: 768px) {
+                .stats-container, .chart-container {
+                    flex-direction: column;
+                }
+                .simulation-content {
+                    grid-template-columns: 1fr;
+                }
+                .persona-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                .persona-meta {
+                    margin-top: 10px;
+                }
+                .chart {
+                    height: 300px;
+                }
+            }
+            
+            /* 针对移动设备的增强适配 */
+            @media (max-width: 576px) {
+                body {
+                    padding: 10px;
+                }
+                .header {
+                    padding: 15px 0;
+                    margin-bottom: 20px;
+                }
+                .header h1 {
+                    font-size: 22px;
+                }
+                .section {
+                    padding: 15px;
+                    margin: 20px 0;
+                }
+                .section h2 {
+                    font-size: 20px;
+                }
+                .section h3 {
+                    font-size: 18px;
+                }
+                .stats-container {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 10px;
+                }
+                .stat-box {
+                    flex: none;
+                    width: auto;
+                    margin: 0;
+                    padding: 10px;
+                }
+                .stat-box h3 {
+                    font-size: 14px;
+                }
+                .stat-box p {
+                    font-size: 20px;
+                    margin-top: 5px;
+                }
+                .chart {
+                    margin: 10px 0;
+                    padding: 10px;
+                    height: 250px;
+                }
+                table {
+                    font-size: 14px;
+                    display: block;
+                    overflow-x: auto;
+                    white-space: nowrap;
+                }
+                th, td {
+                    padding: 8px 10px;
+                }
+                .persona-card {
+                    padding: 15px;
+                    margin: 20px 0;
+                }
+                .persona-tag {
+                    font-size: 12px;
+                    padding: 3px 8px;
+                }
+                .simulation-card {
+                    padding: 12px;
+                    margin: 12px 0;
+                }
+                .simulation-item-title {
+                    font-size: 15px;
+                }
+                .simulation-feedback, .simulation-improvements {
+                    padding: 12px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>用户研究报告</h1>
+            <p class="date">生成日期: 2025-04-04</p>
+        </div>
+
+        <div class="section" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+            <h2 style="color: #856404;">温馨提示</h2>
+            <ul style="color: #856404;">
+                <li>微信直接打开可能会出现页面混乱的情况，强烈建议在电脑端下载后直接点开查看</li>
+                <li>您可以根据用户反馈优化您的产品描述，然后再次模拟来观察用户反馈的变化</li>
+                <li>调研人次越多，对您的产品反馈越准确</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>1. 数据总览</h2>
+            
+            <div class="stats-container">
+                <div class="stat-box">
+                    <h3>参与调研用户总数</h3>
+                    <p>4</p>
+                </div>
+    
+                <div class="stat-box">
+                    <h3>潜在用户</h3>
+                    <p>2</p>
+                </div>
+            
+                <div class="stat-box">
+                    <h3>非目标用户</h3>
+                    <p>2</p>
+                </div>
+            
+                <div class="stat-box">
+                    <h3>刚需比例</h3>
+                    <p>0.0%</p>
+                </div>
+        
+            </div>
+            
+            <div class="chart-container">
+    
+                <div class="chart">
+                    <h3>用户类型分布</h3>
+                    <div class="canvas-container">
+                        <canvas id="userTypeChart"></canvas>
+                    </div>
+                </div>
+        
+                <div class="chart">
+                    <h3>产品依赖水平</h3>
+                    <div class="canvas-container">
+                        <canvas id="dependencyChart"></canvas>
+                    </div>
+                </div>
+        
+                <div class="chart">
+                    <h3>使用频率分布</h3>
+                    <div class="canvas-container">
+                        <canvas id="frequencyChart"></canvas>
+                    </div>
+                </div>
+        
+            </div>
+    
+            <h3>使用频率详细统计</h3>
+            <table>
+                <tr>
+                    <th>使用频率</th>
+                    <th>用户数</th>
+                    <th>百分比</th>
+                </tr>
+        
+                <tr>
+                    <td>每周几次</td>
+                    <td>4</td>
+                    <td>100.0%</td>
+                </tr>
+            
+            </table>
+        
+            <h3>产品依赖水平详细统计</h3>
+            <table>
+                <tr>
+                    <th>依赖水平</th>
+                    <th>用户数</th>
+                    <th>百分比</th>
+                </tr>
+        
+                <tr>
+                    <td>可以接受</td>
+                    <td>4</td>
+                    <td>100.0%</td>
+                </tr>
+            
+            </table>
+        
+        </div>
+
+        <div class="section">
+            <h2>2. 用户画像和反馈详情</h2>
+    
+            <div class="persona-card">
+                <div class="persona-header">
+                    <div class="persona-title">
+                        <h3>用户画像 persona_1</h3>
+                    </div>
+                    <div class="persona-meta">
+                        <span class="persona-tag tag-potential">潜在用户</span>
+                        <span class="persona-tag tag-frequency">每周几次</span>
+                    </div>
+                </div>
+        
+                <div class="persona-description">
+                    <p>45岁的退伍军人配偶Lisa，丈夫是即将退役的陆军上士。作为前人力资源专员(有6年招聘经验)，她对医疗保健和物流行业的岗位需求有专业见解。因丈夫拒绝使用军方提供的转型服务(认为那些1小时讲座'就像部队里的政治课')，她偷偷注册平台。特别关注平台与当地医院和亚马逊仓库的实际合作案例，会计算培训时长与就业率的比值来评估性价比。</p>
+                </div>
+            
+                <h4>关键需求:</h4>
+                <ul class="needs-list">
+            <li>查看平台与具体雇主(如退伍军人健康管理局)的签约文件</li><li>比较120小时培训课程与60小时速成班的就业数据差异</li><li>获取配偶参与决策的沟通技巧指导</li>
+                </ul>
+            
+                <h4>使用场景:</h4>
+                <ul class="scenarios-list">
+            <li>深夜用平板电脑研究医疗文书岗位的技能转化案例</li><li>录制直播课给丈夫看时故意停留在'高薪重型机械操作员'章节</li><li>要求客服提供最近3个月本地学员的薪资分布表</li>
+                </ul>
+            
+                <h4>用户反馈:</h4>
+        
+                <div class="simulation-card">
+                    <div class="simulation-header">
+                        <div class="simulation-title">模拟ID: persona_1_df5f4d86_sim_1</div>
+                        <div class="simulation-meta">模拟时间: 2025-04-04 21:26:05</div>
+                    </div>
+                    <div class="simulation-content">
+                
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">初始印象</div>
+                                <div>听起来比那些敷衍的军方讲座专业多了，尤其是线上线下结合的模式。如果能真正解决就业问题就值得尝试。</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">感知需求</div>
+                                <div>可以帮助我丈夫系统分析军事技能的市场价值，避免盲目投简历。最需要的是真实就业数据和与当地雇主的直接合作渠道。</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">愿意尝试</div>
+                                <div class="tag-bool-true">
+                                    是
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">愿意购买</div>
+                                <div class="tag-bool-true">
+                                    是
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">是否刚需</div>
+                                <div class="tag-bool-false">
+                                    否
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">依赖水平</div>
+                                <div>可以接受</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">采用障碍</div>
+                                <div>需要看到具体合作医院的名称和亚马逊仓库的实际录用率数据才完全放心</div>
+                            </div>
+                            
+                    <div class="simulation-item">
+                        <div class="simulation-item-title">备选方案</div>
+                        <ul class="alternatives-list">
+                    <li>军队转型服务讲座</li><li>LinkedIn自学</li><li>退伍军人事务部网站</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="simulation-feedback">
+                        <div class="simulation-item-title">详细反馈</div>
+                        <div>作为HR出身，我最看重的是就业转化率这个硬指标。1) 关于数据可信度：我需要看到雇主盖章的录用人员名单（至少包含入职时间和岗位），加上第三方机构对就业率的审计摘要。视频访谈可以作为辅助材料但不够硬核。2) 决策矛盾点：我会向丈夫强调这个服务有真实的雇主参与课程设计（不像军方那些泛泛而谈），而且会根据他的炮兵维修经验匹配制造业设备维护这类具体岗位。3) 地域适配性：如果缺少本地医院合作，只要能展示同等级别医疗系统（比如相邻州的退伍军人医疗中心）的成功案例，且培训内容具有通用性，我会考虑跨地区就业的可能性。4) 长期价值：3个月后最重要的是他建立起用商业术语描述军事技能的能力（比如把'弹药管理'转化为'危险品物流协调'），这比证书更重要。5) 薪资顾虑：如果时薪低15%，但能提供清晰的晋升路径说明（比如6个月后可晋升主管薪资持平军队水平），或医疗保险等福利补偿方案，我会重新评估性价比。</div>
+                    </div>
+                    
+                    <div class="simulation-improvements">
+                        <div class="simulation-item-title">改进建议</div>
+                        <div>1) 在后台提供可下载的雇主合作证明文件 2) 增加军事术语与岗位关键词的智能转换工具 3) 开发薪资成长计算器功能（输入军队薪资自动对比目标行业3年收入曲线）4) 为配偶开设单独入口查看进展（避免引发家庭矛盾）</div>
+                    </div>
+                    
+                    </div>
+                </div>
+                
+                <div class="simulation-card">
+                    <div class="simulation-header">
+                        <div class="simulation-title">模拟ID: persona_1_df5f4d86_sim_2</div>
+                        <div class="simulation-meta">模拟时间: 2025-04-04 21:24:44</div>
+                    </div>
+                    <div class="simulation-content">
+                
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">初始印象</div>
+                                <div>听起来比军方那些无聊的政治课强多了，至少是线上线下结合的实用服务。</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">感知需求</div>
+                                <div>可以帮助我丈夫理解现代就业市场，将他的军事技能转化为市场需求，并匹配到合适的工作机会。</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">愿意尝试</div>
+                                <div class="tag-bool-true">
+                                    是
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">愿意购买</div>
+                                <div class="tag-bool-true">
+                                    是
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">是否刚需</div>
+                                <div class="tag-bool-false">
+                                    否
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">依赖水平</div>
+                                <div>可以接受</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">采用障碍</div>
+                                <div>丈夫可能对任何'官方'或'组织'提供的服务有抵触情绪。</div>
+                            </div>
+                            
+                    <div class="simulation-item">
+                        <div class="simulation-item-title">备选方案</div>
+                        <ul class="alternatives-list">
+                    <li>军方提供的转型服务</li><li>自行搜索招聘网站</li><li>联系当地人力资源机构</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="simulation-feedback">
+                        <div class="simulation-item-title">详细反馈</div>
+                        <div>这个产品看起来很有潜力，特别是如果能展示与当地医院和亚马逊仓库的实际合作案例。我需要看到具体的培训时长与就业率的比值，确保性价比高。此外，产品的沟通方式需要更加平民化，避免使用官方术语，而是用实际案例和退伍军人成功故事来吸引他。他通常在晚上7点后有时间进行线上学习，但可能会因为技术问题或缺乏耐心而放弃。除了就业率，我更关注薪资水平和工作满意度，这些才是衡量成功转型的关键指标。</div>
+                    </div>
+                    
+                    <div class="simulation-improvements">
+                        <div class="simulation-item-title">改进建议</div>
+                        <div>提供更多具体的企业合作案例和数据支持，特别是医疗保健和物流行业的岗位需求分析。增加透明度，展示成功案例的具体细节和就业率数据。采用更加平民化的沟通方式，避免官方术语，用实际案例和退伍军人成功故事来吸引用户。提供技术支持和灵活的学习时间安排，以适应不同的作息时间。展示薪资水平和工作满意度的数据，让用户看到实际的转型效果。如果费用合理且能提供高质量的服务和实际的工作机会，我愿意支付高于军方免费服务的费用。</div>
+                    </div>
+                    
+                    </div>
+                </div>
+                
+            </div>
+        
+            <div class="persona-card">
+                <div class="persona-header">
+                    <div class="persona-title">
+                        <h3>用户画像 persona_2</h3>
+                    </div>
+                    <div class="persona-meta">
+                        <span class="persona-tag tag-non-target">非目标用户</span>
+                        <span class="persona-tag tag-frequency">每周几次</span>
+                    </div>
+                </div>
+        
+                <div class="persona-description">
+                    <p>52岁的退伍军人事务部基层公务员Maria，负责地区退伍军人福利发放工作15年。熟悉当地退伍军人群体构成，能区分不同兵种(如海军陆战队与后勤部队)的转型需求差异。在工作会议上发现这个平台后，建立了系统的使用流程：首先按军事专业分类筛选数据，特别关注技术兵种(如通信/工程)与当地科技产业的匹配度；其次会交叉比对不同培训项目的结业就业率；最后评估合作企业的退役军人留任率。建立了自己的合作机构评分表，包含薪资透明度、职业发展路径清晰度等12项指标。</p>
+                </div>
+            
+                <h4>关键需求:</h4>
+                <ul class="needs-list">
+            <li>细分兵种的就业市场分析数据</li><li>培训项目效果的多维度对比</li><li>企业合作方的长期发展性评估</li><li>快速生成定制化推荐话术</li>
+                </ul>
+            
+                <h4>使用场景:</h4>
+                <ul class="scenarios-list">
+            <li>为技术兵种退伍军人筛选高端制造业岗位</li><li>验证培训机构宣传的真实就业率</li><li>制作不同企业类型的福利对比表</li><li>生成针对特殊技能军人的个性化推荐</li>
+                </ul>
+            
+                <h4>用户反馈:</h4>
+        
+                <div class="simulation-card">
+                    <div class="simulation-header">
+                        <div class="simulation-title">模拟ID: persona_2_f620863c_sim_1</div>
+                        <div class="simulation-meta">模拟时间: 2025-04-04 21:29:05</div>
+                    </div>
+                    <div class="simulation-content">
+                
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">初始印象</div>
+                                <div>听起来像是一个专门为退伍军人设计的职业转型平台，可能能帮助我更系统地为他们匹配合适的工作。</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">感知需求</div>
+                                <div>可能帮助我更高效地分析退伍军人的技能与本地就业市场的匹配度，特别是技术兵种与科技产业的对接。</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">愿意尝试</div>
+                                <div class="tag-bool-true">
+                                    是
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">愿意购买</div>
+                                <div class="tag-bool-false">
+                                    否
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">是否刚需</div>
+                                <div class="tag-bool-false">
+                                    否
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">依赖水平</div>
+                                <div>可以接受</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">采用障碍</div>
+                                <div>需要验证该平台的数据准确性和合作机构的可靠性，以及是否能与我现有的评分表系统兼容。</div>
+                            </div>
+                            
+                    <div class="simulation-item">
+                        <div class="simulation-item-title">备选方案</div>
+                        <ul class="alternatives-list">
+                    <li>现有的政府福利发放系统</li><li>本地就业中心提供的服务</li><li>退伍军人协会的自助项目</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="simulation-feedback">
+                        <div class="simulation-item-title">详细反馈</div>
+                        <div>1. 最关键的数据是合作企业的实际留任率、薪资水平与承诺的匹配度、职业晋升路径的清晰度。如果平台数据与我的评分表有差异，我会优先相信自己的实地考察结果，除非平台能提供详细的原始数据来源和追踪记录。
+2. 整合12项指标将极大提升我的工作效率，但我不愿意简化核心指标如'晋升透明度'和'技能转化率'。平台需要足够灵活来容纳这些细节。
+3. 当平台能提供实时更新的地区就业数据、超过我手动收集的案例数量、且匹配准确率达到85%以上时，会成为必需品。
+4. 技术兵种需要专门的技能对照词典（如军事通信协议与民用标准的对应关系），现有服务常忽略这点。平台应增加技术认证转换指导。
+5. 地区分析应包含：科技园区扩张计划、重点扶持产业清单、3年内薪资增长预测。这将直接影响我推荐培训项目的优先级排序。</div>
+                    </div>
+                    
+                    <div class="simulation-improvements">
+                        <div class="simulation-item-title">改进建议</div>
+                        <div>1)开发军事-民用技能对照数据库
+2)提供可定制的指标导入/导出功能
+3)每月发布地区就业蓝皮书
+4)设立技术兵种专项顾问
+5)展示企业历史承诺兑现率(如:3年前承诺的晋升路径实际执行情况)</div>
+                    </div>
+                    
+                    </div>
+                </div>
+                
+                <div class="simulation-card">
+                    <div class="simulation-header">
+                        <div class="simulation-title">模拟ID: persona_2_f620863c_sim_2</div>
+                        <div class="simulation-meta">模拟时间: 2025-04-04 21:28:38</div>
+                    </div>
+                    <div class="simulation-content">
+                
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">初始印象</div>
+                                <div>这个产品听起来很有针对性，可能能帮助我更好地为退伍军人提供职业转型服务。</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">感知需求</div>
+                                <div>可以帮助我更系统地分析退伍军人的军事技能与市场需求的匹配度，特别是技术兵种与当地科技产业的对接。</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">愿意尝试</div>
+                                <div class="tag-bool-true">
+                                    是
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">愿意购买</div>
+                                <div class="tag-bool-false">
+                                    否
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">是否刚需</div>
+                                <div class="tag-bool-false">
+                                    否
+                                </div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">依赖水平</div>
+                                <div>可以接受</div>
+                            </div>
+                            
+                            <div class="simulation-item">
+                                <div class="simulation-item-title">采用障碍</div>
+                                <div>需要验证该平台的数据准确性和合作企业的可靠性，以及是否能与我现有的工作流程无缝对接。</div>
+                            </div>
+                            
+                    <div class="simulation-item">
+                        <div class="simulation-item-title">备选方案</div>
+                        <ul class="alternatives-list">
+                    <li>现有的退伍军人事务部内部数据库</li><li>当地就业中心提供的服务</li><li>退伍军人组织自建的职业培训项目</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="simulation-feedback">
+                        <div class="simulation-item-title">详细反馈</div>
+                        <div>这个产品在理论上看起来不错，但我需要看到具体的案例和数据支持。特别是关于合作企业的退役军人留任率和薪资透明度这些关键指标。目前我的评分表已经包含了12项指标，如果这个平台能提供类似或更详细的数据，会更有吸引力。</div>
+                    </div>
+                    
+                    <div class="simulation-improvements">
+                        <div class="simulation-item-title">改进建议</div>
+                        <div>增加更多关于合作企业的详细数据，特别是薪资透明度、职业发展路径和留任率等指标。如果能提供一个API或数据导出功能，让我可以将平台数据整合到我现有的评分表中，会大大提高实用性。</div>
+                    </div>
+                    
+                    </div>
+                </div>
+                
+            </div>
+        
+        </div>
+        
+        <div class="footer">
+            <p style="text-align: center; margin-top: 40px; color: #7f8c8d;">© 2025 用户研究报告 | 自动生成</p>
+        </div>
+        
+        <script>
+            // 准备图表数据
+            document.addEventListener('DOMContentLoaded', function() {
+                // 检测微信浏览器和移动设备
+                const isWechat = /MicroMessenger/i.test(navigator.userAgent);
+                const isWeixin = /WeiBo/i.test(navigator.userAgent) || /MicroMessenger/i.test(navigator.userAgent);
+                const isMobile = window.innerWidth < 576;
+                
+                // 微信浏览器图表兼容处理
+                if (isWeixin) {
+                    // 尝试从URL参数中检测是否需要强制表格模式
+                    const forceTable = new URLSearchParams(window.location.search).get('forcetable') === '1';
+                    
+                    // 记录原始图表数据供可能的备用显示使用
+                    window.chartData = {
+                        userTypes: {
+                            labels: ["\u6f5c\u5728\u7528\u6237", "\u975e\u76ee\u6807\u7528\u6237"],
+                            data: [2, 2]
+                        },
+                        dependencyLevels: {
+                            labels: ["\u53ef\u4ee5\u63a5\u53d7"],
+                            data: [100.0]
+                        },
+                        frequency: {
+                            labels: ["\u6bcf\u5468\u51e0\u6b21"],
+                            data: [100.0]
+                        }
+                    };
+                    
+                    // 创建微信图表备用方案 - 用表格代替图表
+                    const createTableFromChart = (container, chartData, title) => {
+                        if (!chartData || !chartData.labels || !chartData.data) return;
+                        
+                        // 确保container是DOM元素
+                        if (typeof container === 'string') {
+                            container = document.querySelector(container);
+                        }
+                        
+                        if (!container) return;
+                        
+                        // 创建标题
+                        const titleEl = document.createElement('h3');
+                        titleEl.textContent = title;
+                        titleEl.style.fontSize = '18px';
+                        titleEl.style.color = '#2980b9';
+                        titleEl.style.marginBottom = '15px';
+                        
+                        // 创建表格
+                        const table = document.createElement('table');
+                        table.style.width = '100%';
+                        table.style.borderCollapse = 'collapse';
+                        table.style.marginBottom = '20px';
+                        table.style.fontSize = '14px';
+                        table.setAttribute('role', 'table');
+                        table.setAttribute('aria-label', title + '数据表');
+                        
+                        // 添加表头
+                        const thead = document.createElement('thead');
+                        thead.setAttribute('role', 'rowgroup');
+                        const headerRow = document.createElement('tr');
+                        headerRow.setAttribute('role', 'row');
+                        
+                        const typeHeader = document.createElement('th');
+                        typeHeader.textContent = '类型';
+                        typeHeader.style.padding = '8px';
+                        typeHeader.style.backgroundColor = '#f2f2f2';
+                        typeHeader.style.textAlign = 'left';
+                        typeHeader.style.borderBottom = '1px solid #ddd';
+                        typeHeader.setAttribute('role', 'columnheader');
+                        typeHeader.setAttribute('scope', 'col');
+                        
+                        const countHeader = document.createElement('th');
+                        countHeader.textContent = '数量';
+                        countHeader.style.padding = '8px';
+                        countHeader.style.backgroundColor = '#f2f2f2';
+                        countHeader.style.textAlign = 'right';
+                        countHeader.style.borderBottom = '1px solid #ddd';
+                        countHeader.setAttribute('role', 'columnheader');
+                        countHeader.setAttribute('scope', 'col');
+                        
+                        const percentHeader = document.createElement('th');
+                        percentHeader.textContent = '占比';
+                        percentHeader.style.padding = '8px';
+                        percentHeader.style.backgroundColor = '#f2f2f2';
+                        percentHeader.style.textAlign = 'right';
+                        percentHeader.style.borderBottom = '1px solid #ddd';
+                        percentHeader.setAttribute('role', 'columnheader');
+                        percentHeader.setAttribute('scope', 'col');
+                        
+                        headerRow.appendChild(typeHeader);
+                        headerRow.appendChild(countHeader);
+                        headerRow.appendChild(percentHeader);
+                        thead.appendChild(headerRow);
+                        table.appendChild(thead);
+                        
+                        // 计算总数
+                        const total = chartData.data.reduce((sum, val) => sum + val, 0);
+                        
+                        // 添加数据行
+                        const tbody = document.createElement('tbody');
+                        tbody.setAttribute('role', 'rowgroup');
+                        
+                        for (let i = 0; i < chartData.labels.length; i++) {
+                            const row = document.createElement('tr');
+                            row.setAttribute('role', 'row');
+                            // 隔行变色
+                            if (i % 2 === 1) {
+                                row.style.backgroundColor = '#f9f9f9';
+                            }
+                            
+                            const typeCell = document.createElement('td');
+                            typeCell.textContent = chartData.labels[i];
+                            typeCell.style.padding = '8px';
+                            typeCell.style.borderBottom = '1px solid #ddd';
+                            typeCell.setAttribute('role', 'cell');
+                            
+                            const countCell = document.createElement('td');
+                            countCell.textContent = chartData.data[i];
+                            countCell.style.padding = '8px';
+                            countCell.style.textAlign = 'right';
+                            countCell.style.borderBottom = '1px solid #ddd';
+                            countCell.setAttribute('role', 'cell');
+                            
+                            // 计算百分比和颜色
+                            const percent = Math.round((chartData.data[i] / total) * 100);
+                            
+                            const percentCell = document.createElement('td');
+                            percentCell.textContent = percent + '%';
+                            percentCell.style.padding = '8px';
+                            percentCell.style.textAlign = 'right';
+                            percentCell.style.borderBottom = '1px solid #ddd';
+                            percentCell.setAttribute('role', 'cell');
+                            
+                            // 根据百分比设置颜色
+                            if (percent > 50) {
+                                percentCell.style.color = '#27ae60'; // 绿色
+                                percentCell.style.fontWeight = 'bold';
+                            } else if (percent > 25) {
+                                percentCell.style.color = '#f39c12'; // 橙色
+                            }
+                            
+                            row.appendChild(typeCell);
+                            row.appendChild(countCell);
+                            row.appendChild(percentCell);
+                            tbody.appendChild(row);
+                        }
+                        table.appendChild(tbody);
+                        
+                        // 清空并重新添加内容
+                        container.innerHTML = '';
+                        container.appendChild(titleEl);
+                        container.appendChild(table);
+                    };
+                    
+                    // 尝试加载Chart.js，如果失败则使用备用表格
+                    setTimeout(() => {
+                        // 检查是否强制显示表格或图表未正确渲染
+                        let useTableFallback = forceTable;
+                        
+                        if (!useTableFallback) {
+                            try {
+                                const canvasElements = document.querySelectorAll('canvas');
+                                // 检查canvas是否至少有一个没有渲染
+                                let emptyCanvasFound = false;
+                                
+                                canvasElements.forEach(canvas => {
+                                    try {
+                                        const context = canvas.getContext('2d');
+                                        const data = context.getImageData(0, 0, 1, 1).data;
+                                        // 如果完全透明，认为画布是空的
+                                        if (data[3] === 0) {
+                                            emptyCanvasFound = true;
+                                        }
+                                    } catch (e) {
+                                        // 如果无法获取图像数据（可能是跨域或其他错误），认为有问题
+                                        console.warn('Canvas检查失败:', e);
+                                        emptyCanvasFound = true;
+                                    }
+                                });
+                                
+                                useTableFallback = emptyCanvasFound;
+                            } catch (e) {
+                                console.warn('Canvas检查异常，使用表格备用:', e);
+                                useTableFallback = true;
+                            }
+                        }
+                        
+                        if (useTableFallback) {
+                            // Chart.js可能未加载成功，替换为表格
+                            document.querySelectorAll('.canvas-container').forEach(container => {
+                                container.style.height = 'auto';
+                            });
+                            
+                            // 添加微信提示信息
+                            const wechatNotice = document.createElement('div');
+                            wechatNotice.style.backgroundColor = '#e8f7ff';
+                            wechatNotice.style.border = '1px solid #c3e6ff';
+                            wechatNotice.style.padding = '10px 15px';
+                            wechatNotice.style.borderRadius = '4px';
+                            wechatNotice.style.marginBottom = '15px';
+                            wechatNotice.style.color = '#0070c9';
+                            wechatNotice.style.fontSize = '14px';
+                            wechatNotice.style.lineHeight = '1.5';
+                            wechatNotice.innerHTML = '提示: 微信中图表不支持完整显示，已转为表格形式。更好的体验请使用系统浏览器打开或下载至电脑端查看。';
+                            
+                            const chartContainer = document.querySelector('.chart-container');
+                            if (chartContainer) {
+                                chartContainer.insertBefore(wechatNotice, chartContainer.firstChild);
+                            }
+                            
+                            try {
+                                // 更安全的选择器方式
+                                const chartContainers = document.querySelectorAll('.chart');
+                                
+                                chartContainers.forEach(container => {
+                                    // 检查包含哪个canvas
+                                    if (container.querySelector('#userTypeChart') && window.chartData.userTypes.labels.length > 0) {
+                                        createTableFromChart(container, window.chartData.userTypes, '用户类型分布');
+                                    }
+                                    else if (container.querySelector('#dependencyChart') && window.chartData.dependencyLevels.labels.length > 0) {
+                                        createTableFromChart(container, window.chartData.dependencyLevels, '产品依赖水平');
+                                    }
+                                    else if (container.querySelector('#frequencyChart') && window.chartData.frequency.labels.length > 0) {
+                                        createTableFromChart(container, window.chartData.frequency, '使用频率分布');
+                                    }
+                                });
+                            } catch (e) {
+                                console.error('图表转换为表格失败:', e);
+                            }
+                        }
+                    }, 2000); // 等待2秒检查图表是否加载
+                }
+                
+                // 移动设备优化
+                if (isMobile) {
+                    // 确保视口设置正确
+                    const viewportMeta = document.querySelector('meta[name="viewport"]');
+                    if (viewportMeta) {
+                        viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+                    }
+                    
+                    // 调整表格适应移动视口
+                    document.querySelectorAll('table').forEach(table => {
+                        if (table.offsetWidth > window.innerWidth) {
+                            table.style.display = 'block';
+                            table.style.overflowX = 'auto';
+                        }
+                    });
+                }
+                
+                // 根据设备调整图表配置
+                const commonChartOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: isMobile ? 'bottom' : 'right',
+                            labels: {
+                                font: {
+                                    size: isMobile ? 12 : 14
+                                },
+                                boxWidth: isMobile ? 15 : 30,
+                                padding: isMobile ? 10 : 15
+                            }
+                        }
+                    }
+                };
+                
+                // 用户类型分布图
+                const userTypeCtx = document.getElementById('userTypeChart');
+                if (userTypeCtx) {
+                    new Chart(userTypeCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: ["\u6f5c\u5728\u7528\u6237", "\u975e\u76ee\u6807\u7528\u6237"],
+                            datasets: [{
+                                data: [2, 2],
+                                backgroundColor: ["rgba(54, 162, 235, 0.7)", "rgba(255, 159, 64, 0.7)"],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            ...commonChartOptions,
+                            plugins: {
+                                ...commonChartOptions.plugins,
+                                title: {
+                                    display: true,
+                                    text: '用户类型分布',
+                                    font: {
+                                        size: isMobile ? 16 : 18
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.raw || 0;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = Math.round((value / total) * 100);
+                                            return `${label}: ${value} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // 依赖水平分布图
+                const dependencyCtx = document.getElementById('dependencyChart');
+                if (dependencyCtx) {
+                    new Chart(dependencyCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: ["\u53ef\u4ee5\u63a5\u53d7"],
+                            datasets: [{
+                                data: [100.0],
+                                backgroundColor: ["rgba(54, 162, 235, 0.7)"],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            ...commonChartOptions,
+                            plugins: {
+                                ...commonChartOptions.plugins,
+                                title: {
+                                    display: true,
+                                    text: '产品依赖水平',
+                                    font: {
+                                        size: isMobile ? 16 : 18
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.raw || 0;
+                                            return `${label}: ${value}%`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // 使用频率分布图
+                const frequencyCtx = document.getElementById('frequencyChart');
+                if (frequencyCtx) {
+                    new Chart(frequencyCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ["\u6bcf\u5468\u51e0\u6b21"],
+                            datasets: [{
+                                label: '使用比例',
+                                data: [100.0],
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: '百分比 (%)',
+                                        font: {
+                                            size: isMobile ? 12 : 14
+                                        }
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: isMobile ? 12 : 14
+                                        }
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: '使用频率',
+                                        font: {
+                                            size: isMobile ? 12 : 14
+                                        }
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: isMobile ? 12 : 14
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: '使用频率分布',
+                                    font: {
+                                        size: isMobile ? 16 : 18
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.raw}%`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        </script>
+    </body>
+    </html>
+    
